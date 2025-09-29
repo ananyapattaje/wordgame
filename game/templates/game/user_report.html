@@ -1,0 +1,109 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h3>User Report</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" class="mb-4">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label for="{{ form.user.id_for_label }}" class="form-label">Select User</label>
+                            {{ form.user }}
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">Generate Report</button>
+                        </div>
+                    </div>
+                </form>
+
+                {% if selected_user %}
+                    <div class="card bg-light">
+                        <div class="card-header">
+                            <h5>Report for {{ selected_user.username }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Summary Statistics -->
+                            <div class="row text-center mb-4">
+                                <div class="col-md-4">
+                                    <div class="card border-primary">
+                                        <div class="card-body">
+                                            <h4 class="text-primary">{{ total_games }}</h4>
+                                            <p class="mb-0">Total Games Played</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card border-success">
+                                        <div class="card-body">
+                                            <h4 class="text-success">{{ total_wins }}</h4>
+                                            <p class="mb-0">Games Won</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card border-warning">
+                                        <div class="card-body">
+                                            <h4 class="text-warning">
+                                                {% if total_games > 0 %}
+                                                    {% widthratio total_wins total_games 100 %}%
+                                                {% else %}
+                                                    0%
+                                                {% endif %}
+                                            </h4>
+                                            <p class="mb-0">Win Rate</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Daily Breakdown -->
+                            {% if daily_stats %}
+                                <h6>Daily Breakdown:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Games Played</th>
+                                                <th>Games Won</th>
+                                                <th>Win Rate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for date, stats in daily_stats.items %}
+                                                <tr>
+                                                    <td>{{ date }}</td>
+                                                    <td>{{ stats.games }}</td>
+                                                    <td>{{ stats.wins }}</td>
+                                                    <td>
+                                                        {% if stats.games > 0 %}
+                                                            {% widthratio stats.wins stats.games 100 %}%
+                                                        {% else %}
+                                                            0%
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No games played yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="mt-3">
+                    <a href="{% url 'reports' %}" class="btn btn-secondary">Back to Reports</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

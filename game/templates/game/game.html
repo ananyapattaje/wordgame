@@ -1,0 +1,115 @@
+{% extends 'game/base.html' %}
+
+{% block content %}
+<div class="game-container">
+    <div class="card">
+        <div class="card-header text-center">
+            <h2>Word Guessing Game</h2>
+            <p class="mb-0">Games played today: {{ games_today }}/3</p>
+            <div class="d-flex justify-content-center gap-4 mt-2">
+                <span><b>Points:</b> {{ points }}</span>
+                <span><b>Streak:</b> {{ streak }}</span>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if daily_limit_reached %}
+                <div class="text-center">
+                    <h4>Daily Limit Reached!</h4>
+                    <p>You can play up to 3 games per day. Come back tomorrow!</p>
+                </div>
+            {% elif no_words %}
+                <div class="text-center">
+                    <h4>No Words Available</h4>
+                    <p>Please contact the administrator to add words to the game.</p>
+                </div>
+            {% elif game_won %}
+                <div class="text-center">
+                    <h4 class="text-success">Congratulations! 🎉</h4>
+                    <p>You guessed the word correctly!</p>
+                </div>
+                {% for guess in guesses %}
+                    <div class="guess-grid">
+                        {% for letter, status in guess.get_letter_status %}
+                            <div class="letter-box {{ status }}">{{ letter }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <div class="text-center mt-3">
+                    <a href="{% url 'game' %}" class="btn btn-primary">Play Again</a>
+                </div>
+            {% elif game_lost %}
+                <div class="text-center">
+                    <h4 class="text-warning">Better luck next time!</h4>
+                    <p>The word was: <strong>{{ current_game.word.word }}</strong></p>
+                </div>
+                {% for guess in guesses %}
+                    <div class="guess-grid">
+                        {% for letter, status in guess.get_letter_status %}
+                            <div class="letter-box {{ status }}">{{ letter }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <div class="text-center mt-3">
+                    <a href="{% url 'game' %}" class="btn btn-primary">Play Again</a>
+                </div>
+            {% else %}
+                <!-- Show previous guesses -->
+                {% for guess in guesses %}
+                    <div class="guess-grid">
+                        {% for letter, status in guess.get_letter_status %}
+                            <div class="letter-box {{ status }}">{{ letter }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                
+                <!-- Show remaining empty rows -->
+                {% for i in remaining_guesses_range %}
+                    <div class="guess-grid">
+                        {% for j in "12345" %}
+                            <div class="letter-box"></div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                
+                <!-- Guess form -->
+                {% if remaining_guesses > 0 %}
+                    <form method="post" class="mt-3">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            {{ form.guess }}
+                            <button type="submit" class="btn btn-success">Guess</button>
+                        </div>
+                        {% if form.guess.errors %}
+                            <div class="text-danger mt-2">{{ form.guess.errors }}</div>
+                        {% endif %}
+                    </form>
+                    <div class="mt-2">
+                        <small class="text-muted">Remaining guesses: {{ remaining_guesses }}</small>
+                    </div>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <h6>Legend:</h6>
+                    <div class="d-flex gap-3">
+                        <span><div class="letter-box correct d-inline-block" style="width:20px;height:20px;font-size:12px;"></div> Correct</span>
+                        <span><div class="letter-box wrong_position d-inline-block" style="width:20px;height:20px;font-size:12px;"></div> Wrong Position</span>
+                        <span><div class="letter-box not_in_word d-inline-block" style="width:20px;height:20px;font-size:12px;"></div> Not in Word</span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto uppercase input
+document.addEventListener('DOMContentLoaded', function() {
+    const guessInput = document.querySelector('input[name="guess"]');
+    if (guessInput) {
+        guessInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    }
+});
+</script>
+{% endblock %}
