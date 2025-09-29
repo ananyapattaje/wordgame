@@ -40,6 +40,7 @@
                     <div class="mb-3">
                         <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
                         {{ form.password|add_class:"form-control" }}
+                        <button type="button" class="btn btn-small btn-secondary mt-2" onclick="this.previousElementSibling.type = this.previousElementSibling.type === 'password' ? 'text' : 'password'; this.textContent = this.textContent === 'Show Password' ? 'Hide Password' : 'Show Password';">Show Password</button>
                     </div>
                     <button type="submit" class="btn btn-primary">Login</button>
                 </form>
