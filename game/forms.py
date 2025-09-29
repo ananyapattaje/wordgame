@@ -5,9 +5,13 @@ from django.core.exceptions import ValidationError
 import re
 from nltk.corpus import words
 import pandas as pd
+import os
+
+BASE_DIR = os.path.dirname(__file__)  # folder where script is located
+csv_path = os.path.join(BASE_DIR, "combined_words.csv")  # or "data/combinedwords.csv"
 
 # Load only once when the file is imported
-WORD_SET = set(pd.read_csv("C:/Users/anany/combined_words.csv")['word'].str.upper())
+WORD_SET = set(pd.read_csv(csv_path)['word'].str.upper())
 
 def is_valid_word(word):
     return word in WORD_SET
